@@ -288,17 +288,49 @@ with colA:
     ax1.set_title("PCA Scatter")
     st.pyplot(fig1, use_container_width=True)
 
-# --- AC vs DC Scatter ---
+# --- SVR vs Linear Regression Curve ---
 with colB:
-    st.subheader("AC vs DC Power")
-    df_solar["DATE_TIME"] = pd.to_datetime(df_solar["DATE_TIME"], dayfirst=True)
-    fig2, ax2 = plt.subplots()
-    ax2.scatter(df_solar["DC_POWER"], df_solar["AC_POWER"], alpha=0.5, edgecolor='k')
+    st.subheader("SVR vs Linear Regression (DC → AC Power)")
+
+    # Prepare dataset
+    df_curve = df_solar.dropna().copy()
+    df_curve = df_curve.iloc[:5000]  # first 5000 rows
+
+    X = df_curve["DC_POWER"].values.reshape(-1, 1)
+    y = df_curve["AC_POWER"].values
+
+    # Linear Regression
+    from sklearn.linear_model import LinearRegression
+    lin_reg = LinearRegression()
+    lin_reg.fit(X, y)
+    y_lin_pred = lin_reg.predict(X)
+
+    # SVR
+    from sklearn.svm import SVR
+    svr = SVR(kernel='rbf', C=100, gamma=0.01)
+    svr.fit(X, y)
+    y_svr_pred = svr.predict(X)
+
+    # Sort for smooth curves
+    sorted_idx = X.flatten().argsort()
+    X_sorted = X.flatten()[sorted_idx]
+    y_lin_sorted = y_lin_pred[sorted_idx]
+    y_svr_sorted = y_svr_pred[sorted_idx]
+
+    # Plot
+    fig2, ax2 = plt.subplots(figsize=(8, 5))
+    ax2.scatter(X, y, s=8, alpha=0.4, label="Actual Data")
+    ax2.plot(X_sorted, y_lin_sorted, linewidth=2, label="Linear Regression")
+    ax2.plot(X_sorted, y_svr_sorted, linewidth=2, label="SVR (Non-Linear)")
+
     ax2.set_xlabel("DC Power")
     ax2.set_ylabel("AC Power")
-    ax2.set_title("AC vs DC Power Scatter")
+    ax2.set_title("SVR vs Linear Regression Curve Fit")
+    ax2.legend()
     ax2.grid(alpha=0.3)
+
     st.pyplot(fig2, use_container_width=True)
+
 
 # --- Net Energy Balance Heatmap ---
 with colC:
@@ -337,4 +369,5 @@ with colC:
     ax3.set_xlabel("Last N Days")
     ax3.set_title("Predicted Net Energy Balance Heatmap")
     st.pyplot(fig3, use_container_width=True)
+
 
