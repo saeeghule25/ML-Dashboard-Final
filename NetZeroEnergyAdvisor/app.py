@@ -90,7 +90,7 @@ def give_recommendation(consumption, solar, balance, user_data):
 
     if balance > 50:
         status = "success"
-        title = "✅ Great job! You’re generating more energy than you consume."
+        title = "✅ Great job!."
         rec = (
             "- Store extra energy in batteries or export to the grid.\n"
             "- Clean solar panels monthly for best efficiency.\n"
@@ -337,3 +337,4 @@ with colC:
     ax3.set_xlabel("Last N Days")
     ax3.set_title("Predicted Net Energy Balance Heatmap")
     st.pyplot(fig3, use_container_width=True)
+
