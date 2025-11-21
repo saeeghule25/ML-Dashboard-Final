@@ -6,4 +6,5 @@ joblib
 xgboost
 scikit-learn
 plotly
+seaborn
 
